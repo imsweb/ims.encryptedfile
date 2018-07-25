@@ -1,0 +1,5 @@
+body#visual-portal-wrapper.pat-plone .outer-wrapper .contenttype-encryptedfile::before,
+body#visual-portal-wrapper.pat-plone #edit-zone .contenttype-encryptedfile:after {
+  font-family: "Glyphicons Halflings" !important;
+  content: "\e033";
+}

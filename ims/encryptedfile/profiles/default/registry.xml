@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<registry>
+    <record name="plone.types_use_view_action_in_listings">
+        <value purge="False">
+            <element>EncryptedFile</element>
+        </value>
+    </record>
+    <records prefix="plone.bundles/ims.encryptedfile"
+             interface='Products.CMFPlone.interfaces.IBundleRegistry'>
+        <value key="merge_with">default</value>
+        <value key="csscompilation">++resource++ims.encryptedfile/encryptedfile.css</value>
+        <value key="compile">False</value>
+        <value key="enabled">True</value>
+        <value key="last_compilation">2018-07-25 16:01:00</value>
+    </records>
+</registry>

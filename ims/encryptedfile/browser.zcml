@@ -1,0 +1,34 @@
+<configure
+        xmlns="http://namespaces.zope.org/zope"
+        xmlns:browser="http://namespaces.zope.org/browser"
+        i18n_domain="ims.encryptedfile">
+
+    <browser:page
+            name="file_view"
+            for=".interfaces.IEncryptedFile"
+            class=".browser.EncryptedFileView"
+            template="templates/file.pt"
+            permission="zope2.View"/>
+
+    <adapter
+            for="Products.CMFCore.interfaces.IFolderish
+             zope.publisher.interfaces.browser.IDefaultBrowserLayer
+             plone.dexterity.interfaces.IDexterityFTI"
+            provides="zope.publisher.interfaces.browser.IBrowserPage"
+            factory=".browser.EncryptedFileAddView"
+            name="EncryptedFile"/>
+    <class class=".browser.EncryptedFileAddView">
+        <require
+                permission="cmf.AddPortalContent"
+                interface="zope.publisher.interfaces.browser.IBrowserPage"/>
+    </class>
+    <browser:page
+            name="edit"
+            for=".interfaces.IEncryptedFile"
+            class=".browser.EncryptedFileEditForm"
+            permission="cmf.ModifyPortalContent"/>
+
+    <browser:resourceDirectory
+            name="ims.encryptedfile"
+            directory="static"/>
+</configure>
