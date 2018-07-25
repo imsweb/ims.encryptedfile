@@ -24,8 +24,6 @@ class EncryptedFileView(FileView):
 class EncryptedFileEditForm(edit.DefaultEditForm):
     schema = IEncryptedFileEdit
 
-    ## todo - save needs to redirect to /view
-
 
 class EncryptedFileAddForm(add.DefaultAddForm):
     portal_type = 'EncryptedFile'
@@ -78,13 +76,16 @@ class EncryptedFileAddForm(add.DefaultAddForm):
         temp.write(data['file'].data)
         temp.close()
 
-        archive_name = tempfile.mktemp(suffix='.zip', dir=temp_dir)
-        subprocess.call([binary, 'a', archive_name, temp.name, '-p{}'.format(data['password']), '-mem=AES256'],
-                        stdout=subprocess.PIPE)
+        # 7z format should be AES256 by default, with the -mem flag only needed for .zip,
+        # see https://sourceforge.net/p/sevenzip/discussion/45797/thread/bdc0378e/
+        # We could download this as a zip and use the -mem flag, but windows compressed file app does not know how to
+        # open it Using .7z allows the file to be more easily associated with something that can actually read it (7zip)
+        archive_name = tempfile.mktemp(suffix='.7z', dir=temp_dir)
+        subprocess.call([binary, 'a', archive_name, temp.name, '-t7z', '-p{}'.format(data['password'])], stdout=subprocess.PIPE) #, '-mem=AES256'])
         with open(archive_name, 'rb') as archive:
             encrypted = archive.read()
             file_name, file_ext = os.path.splitext(content.file.filename)
-            file_name = u'{}.zip'.format(file_name)
+            file_name = u'{}.7z'.format(file_name)
             content.file = NamedFile(encrypted, filename=file_name)
 
         shutil.rmtree(temp_dir)
