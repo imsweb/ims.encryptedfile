@@ -25,19 +25,14 @@
         </p>
 
         <p>
-            This is a compressed, password-protected file. To properly extract the contents you will need to open
+            This is a compressed, password-protected file. To extract the contents you will need to open
             this file with a program that can decrypt AES256 such as <a href="https://www.7-zip.org/">7zip</a>. When
             extracting the contents you will be prompted for the password.
         </p>
 
         <p>
-            Please contact the uploader for inquiries about accessing the contents. This website does not store the
-            associated password in anyway so site admins will not be able to assist on this matter.
-        </p>
-
-        <p tal:condition="context/description"
-           tal:content="context/description">
-            description
+            Please contact the uploader for inquiries about accessing the contents. Site administrators will not be
+            able to assist on this matter because this website does not store the associated password.
         </p>
 
     </metal:block>
