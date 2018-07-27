@@ -3,18 +3,22 @@ import shutil
 import subprocess
 import tempfile
 
+from Acquisition import aq_inner, aq_parent
 from plone import api
 from plone.app.contenttypes.browser.file import FileView
+from plone.autoform.form import AutoExtensibleForm
 from plone.dexterity.browser import add, edit
 from plone.namedfile.file import NamedFile
-from z3c.form import button
+from plone.rfc822.interfaces import IPrimaryFieldInfo
+from z3c.form import button, form
 from z3c.form.action import ActionErrorOccurred
 from z3c.form.interfaces import WidgetActionExecutionError
 from zope.event import notify
 from zope.interface import Invalid
+from Products.Five import BrowserView
 
 from . import _
-from .interfaces import IEncryptedFileEdit, IEncryptedFileAdd
+from .interfaces import IEncryptedFileEdit, IEncryptedFileAdd, IEncryptPlainFile, IEncryptable, IEncryptedFile
 
 
 class EncryptedFileView(FileView):
@@ -25,6 +29,27 @@ class EncryptedFileEditForm(edit.DefaultEditForm):
     schema = IEncryptedFileEdit
 
 
+def validate_passwords(action, data):
+    # Skip this check if password fields already have an error
+    error_keys = [error.field.getName() for error in action.form.widgets.errors]
+    if not ('password' in error_keys or 'password_ctl' in error_keys):
+        password = data.get('password')
+        password_ctl = data.get('password_ctl')
+        if password != password_ctl:
+            err_str = _(u'Passwords do not match.')
+            notify(ActionErrorOccurred(action, WidgetActionExecutionError('password', Invalid(err_str))))
+            notify(ActionErrorOccurred(action, WidgetActionExecutionError('password_ctl', Invalid(err_str))))
+
+
+class EncryptUtils(BrowserView):
+    def context_enabled(self):
+        if not IEncryptable.providedBy(self.context):
+            return False
+        if IEncryptedFile.providedBy(self.context):
+            return False
+        return True
+
+
 class EncryptedFileAddForm(add.DefaultAddForm):
     portal_type = 'EncryptedFile'
     schema = IEncryptedFileAdd
@@ -32,15 +57,10 @@ class EncryptedFileAddForm(add.DefaultAddForm):
     @button.buttonAndHandler(_('Save'), name='save')
     def handleAdd(self, action):
         data, errors = self.extractData()
-        # Skip this check if password fields already have an error
-        error_keys = [error.field.getName() for error in action.form.widgets.errors]
-        if not ('password' in error_keys or 'password_ctl' in error_keys):
-            password = data.get('password')
-            password_ctl = data.get('password_ctl')
-            if password != password_ctl:
-                err_str = _(u'Passwords do not match.')
-                notify(ActionErrorOccurred(action, WidgetActionExecutionError('password', Invalid(err_str))))
-                notify(ActionErrorOccurred(action, WidgetActionExecutionError('password_ctl', Invalid(err_str))))
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+        validate_passwords(action, data)
 
         if action.form.widgets.errors:
             self.status = self.formErrorsMessage
@@ -89,7 +109,9 @@ class EncryptedFileAddForm(add.DefaultAddForm):
         subprocess.call(command, stdout=subprocess.PIPE)
         with open(archive_name, 'rb') as archive:
             encrypted = archive.read()
-            file_name, file_ext = os.path.splitext(content.file.filename)
+            file_name = data.get('file_name')
+            if not file_name:
+                file_name, file_ext = os.path.splitext(content.file.filename)
             file_name = u'{}.{}'.format(file_name, data['format'])
             content.file = NamedFile(encrypted, filename=file_name)
 
@@ -102,3 +124,34 @@ class EncryptedFileAddForm(add.DefaultAddForm):
 
 class EncryptedFileAddView(add.DefaultAddView):
     form = EncryptedFileAddForm
+
+
+class EncryptPlainFile(AutoExtensibleForm, form.Form):
+    ignoreContext = True
+    schema = IEncryptPlainFile
+    redirect = False
+
+    def render(self):
+        if not self.redirect:
+            return super(EncryptPlainFile, self).render()
+
+    @button.buttonAndHandler(u'Encrypt')
+    def encrypt(self, action):
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+        validate_passwords(action, data)
+        primary = IPrimaryFieldInfo(self.context).value
+        container = aq_parent(aq_inner(self.context))
+        add_view = EncryptedFileAddForm(container, self.request)
+        data['file'] = primary
+        data['id'] = self.context.id
+        data['title'] = self.context.title
+        data['file_name'] = os.path.splitext(primary.filename)[0]
+        encrypted_file = add_view.createAndAdd(data)
+        if data.get('delete_orig'):
+            api.content.delete(obj=self.context)
+        api.portal.show_message(_(u'File successfully password-protected'), self.request, 'info')
+        add_view._finishedAdd = True
+        return self.request.response.redirect(container[encrypted_file.getId()].absolute_url() + '/view')

@@ -10,6 +10,22 @@
             template="templates/file.pt"
             permission="zope2.View"/>
 
+    <browser:page
+            name="encrypt_utils"
+            for="*"
+            class=".browser.EncryptUtils"
+            permission="zope2.View"/>
+    <browser:page
+            name="encrypt_file"
+            for="plone.app.contenttypes.interfaces.IFile"
+            class=".browser.EncryptPlainFile"
+            permission="zope2.View"/>
+    <browser:page
+            name="encrypt_file"
+            for="plone.app.contenttypes.interfaces.IImage"
+            class=".browser.EncryptPlainFile"
+            permission="zope2.View"/>
+
     <adapter
             for="Products.CMFCore.interfaces.IFolderish
              zope.publisher.interfaces.browser.IDefaultBrowserLayer

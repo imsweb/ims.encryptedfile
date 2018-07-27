@@ -13,4 +13,11 @@
     <include file="browser.zcml"/>
     <include file="upgrades.zcml" />
 
+    <class class="plone.app.contenttypes.content.File">
+        <implements interface=".interfaces.IEncryptable"/>
+    </class>
+    <class class="plone.app.contenttypes.content.Image">
+        <implements interface=".interfaces.IEncryptable"/>
+    </class>
+
 </configure>
