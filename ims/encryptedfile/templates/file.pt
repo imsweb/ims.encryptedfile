@@ -22,6 +22,7 @@
                   tal:define="size context/file/getSize;
                     kb python:size/1024">
       &mdash; <span tal:replace="kb"/> KB</span>
+
         </p>
 
         <p>

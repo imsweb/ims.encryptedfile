@@ -80,13 +80,21 @@ class EncryptedFileAddForm(add.DefaultAddForm):
         # see https://sourceforge.net/p/sevenzip/discussion/45797/thread/bdc0378e/
         # We could download this as a zip and use the -mem flag, but windows compressed file app does not know how to
         # open it Using .7z allows the file to be more easily associated with something that can actually read it (7zip)
-        archive_name = tempfile.mktemp(suffix='.7z', dir=temp_dir)
-        subprocess.call([binary, 'a', archive_name, temp.name, '-t7z', '-p{}'.format(data['password'])], stdout=subprocess.PIPE) #, '-mem=AES256'])
+        suffix = '.{}'.format(data['format'])
+        archive_name = tempfile.mktemp(suffix=suffix, dir=temp_dir)
+        if data['format'] == '7z':
+            command = [binary, 'a', archive_name, temp.name, '-t7z', '-p{}'.format(data['password'])]
+        else:
+            command = [binary, 'a', archive_name, temp.name, '-p{}'.format(data['password']), '-mem=AES256']
+        subprocess.call(command, stdout=subprocess.PIPE)
         with open(archive_name, 'rb') as archive:
             encrypted = archive.read()
             file_name, file_ext = os.path.splitext(content.file.filename)
-            file_name = u'{}.7z'.format(file_name)
+            file_name = u'{}.{}'.format(file_name, data['format'])
             content.file = NamedFile(encrypted, filename=file_name)
+
+        content.password = None
+        content.password_ctl = None
 
         shutil.rmtree(temp_dir)
         return content

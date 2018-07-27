@@ -1,9 +1,12 @@
 from plone.supermodel import model
-from zope.schema import TextLine, Password, Text
+from zope.schema import TextLine, Password, Text, Choice
 from plone.namedfile.field import NamedBlobFile
 from plone.supermodel import directives
+from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 
 from . import _
+
+encryption_formats = SimpleVocabulary([SimpleTerm('7z'), SimpleTerm('zip')])
 
 
 class IEncryptedFile(model.Schema):
@@ -34,6 +37,12 @@ class IEncryptedFileAdd(model.Schema):
     file = NamedBlobFile(
         title=_(u"File"),
         required=True,
+    )
+    format = Choice(
+        title=_(u'File format'),
+        description=_(u'All formats use AES256 encryption'),
+        vocabulary=encryption_formats,
+        required=True
     )
     password = Password(
         title=_(u"Password"),
