@@ -1,6 +1,7 @@
 <configure
         xmlns="http://namespaces.zope.org/zope"
         xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+        xmlns:zcml="http://namespaces.zope.org/zcml"
         i18n_domain="ims.encryptedfile">
 
     <genericsetup:registerProfile
@@ -11,7 +12,7 @@
             provides="Products.GenericSetup.interfaces.EXTENSION"/>
 
     <include file="browser.zcml"/>
-    <include file="upgrades.zcml" />
+    <include file="upgrades.zcml"/>
 
     <class class="plone.app.contenttypes.content.File">
         <implements interface=".interfaces.IEncryptable"/>

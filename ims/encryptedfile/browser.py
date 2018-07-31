@@ -4,6 +4,7 @@ import subprocess
 import tempfile
 
 from Acquisition import aq_inner, aq_parent
+from Products.Five import BrowserView
 from plone import api
 from plone.app.contenttypes.browser.file import FileView
 from plone.autoform.form import AutoExtensibleForm
@@ -15,7 +16,6 @@ from z3c.form.action import ActionErrorOccurred
 from z3c.form.interfaces import WidgetActionExecutionError
 from zope.event import notify
 from zope.interface import Invalid
-from Products.Five import BrowserView
 
 from . import _
 from .interfaces import IEncryptedFileEdit, IEncryptedFileAdd, IEncryptPlainFile, IEncryptable, IEncryptedFile
@@ -99,7 +99,7 @@ class EncryptedFileAddForm(add.DefaultAddForm):
         # 7z format should be AES256 by default, with the -mem flag only needed for .zip,
         # see https://sourceforge.net/p/sevenzip/discussion/45797/thread/bdc0378e/
         # We could download this as a zip and use the -mem flag, but windows compressed file app does not know how to
-        # open it Using .7z allows the file to be more easily associated with something that can actually read it (7zip)
+        # open it. Using 7z allows the file to be more easily associated with something that can actually read it (7zip)
         suffix = '.{}'.format(data['format'])
         archive_name = tempfile.mktemp(suffix=suffix, dir=temp_dir)
         if data['format'] == '7z':
@@ -113,6 +113,7 @@ class EncryptedFileAddForm(add.DefaultAddForm):
             if not file_name:
                 file_name, file_ext = os.path.splitext(content.file.filename)
             file_name = u'{}.{}'.format(file_name, data['format'])
+            file_name = unicode(file_name.encode('ascii', 'ignore'))
             content.file = NamedFile(encrypted, filename=file_name)
 
         content.password = None
@@ -136,22 +137,33 @@ class EncryptPlainFile(AutoExtensibleForm, form.Form):
             return super(EncryptPlainFile, self).render()
 
     @button.buttonAndHandler(u'Encrypt')
-    def encrypt(self, action):
+    def handle_encrypt(self, action):
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
             return
         validate_passwords(action, data)
-        primary = IPrimaryFieldInfo(self.context).value
+        encrypted_file = self.encrypt(data['format'], data['password'], data['delete_orig'])
+
+        api.portal.show_message(_(u'File successfully password-protected'), self.request, 'info')
+        return self.request.response.redirect(encrypted_file.absolute_url() + '/view')
+
+    def encrypt(self, format, password, delete=False):
+        orig = IPrimaryFieldInfo(self.context).value
         container = aq_parent(aq_inner(self.context))
         add_view = EncryptedFileAddForm(container, self.request)
-        data['file'] = primary
-        data['id'] = self.context.id
-        data['title'] = self.context.title
-        data['file_name'] = os.path.splitext(primary.filename)[0]
-        encrypted_file = add_view.createAndAdd(data)
-        if data.get('delete_orig'):
-            api.content.delete(obj=self.context)
-        api.portal.show_message(_(u'File successfully password-protected'), self.request, 'info')
+        data = {
+            'file': orig,
+            'format': format,
+            'password': password,
+            'id': self.context.id,
+            'title': self.context.title,
+            'file_name': os.path.splitext(orig.filename)[0]
+        }
+        encrypted_file = add_view.createAndAdd(data)  # does not have context
         add_view._finishedAdd = True
-        return self.request.response.redirect(container[encrypted_file.getId()].absolute_url() + '/view')
+
+        if delete:
+            api.content.delete(obj=self.context)
+
+        return container[encrypted_file.getId()]
