@@ -6,4 +6,4 @@ TODO - plone.namedfile throws a warning about file size with large files. Need t
 
 ## Dependencies
 
-This package works with ims.upload although it is not required. If using ims.upload, it must be >=2.4.
+This package works with ims.upload although it is not required. If using ims.upload, it must be >=3.0.

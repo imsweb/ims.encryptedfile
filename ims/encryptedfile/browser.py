@@ -1,7 +1,5 @@
+import mimetypes
 import os
-import shutil
-import subprocess
-import tempfile
 
 from Acquisition import aq_inner, aq_parent
 from Products.Five import BrowserView
@@ -9,16 +7,20 @@ from plone import api
 from plone.app.contenttypes.browser.file import FileView
 from plone.autoform.form import AutoExtensibleForm
 from plone.dexterity.browser import add, edit
-from plone.namedfile.file import NamedFile
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 from z3c.form import button, form
 from z3c.form.action import ActionErrorOccurred
 from z3c.form.interfaces import WidgetActionExecutionError
+from zope.component import getUtility
 from zope.event import notify
+from plone.dexterity.interfaces import IDexterityContainer
 from zope.interface import Invalid
+from zope.lifecycleevent import ObjectModifiedEvent
 
 from . import _
-from .interfaces import IEncryptedFileEdit, IEncryptedFileAdd, IEncryptPlainFile, IEncryptable, IEncryptedFile
+from .interfaces import IEncryptedFileEdit, IEncryptedFileAdd, IEncryptPlainFile, IEncryptable, IEncryptedFile, \
+    IDecryptFile, IEncryptionUtility
+from .utility import DecryptionError
 
 
 class EncryptedFileView(FileView):
@@ -42,12 +44,18 @@ def validate_passwords(action, data):
 
 
 class EncryptUtils(BrowserView):
-    def context_enabled(self):
+    def encrypt_file(self):
         if not IEncryptable.providedBy(self.context):
             return False
         if IEncryptedFile.providedBy(self.context):
             return False
         return True
+
+    def encrypt_directory(self):
+        if IDexterityContainer.providedBy(self.context):
+            util = getUtility(IEncryptionUtility)
+            if util.get_encryptable(self.context, brains=True):
+                return True
 
 
 class EncryptedFileAddForm(add.DefaultAddForm):
@@ -86,40 +94,16 @@ class EncryptedFileAddForm(add.DefaultAddForm):
         :return: content object
         """
         content = super(EncryptedFileAddForm, self).create(data)
-        binary = '7za'
-        if os.name == 'nt':
-            binary = '7z.exe'
+        file_name = data.get('file_name')
+        if not file_name:
+            file_name, file_ext = os.path.splitext(content.file.filename)
 
-        temp_dir = tempfile.mkdtemp()
-        # don't call tempfile.NamedTemporaryFile because we want to preserve filename
-        temp = open(os.path.join(temp_dir, data['file'].filename), mode='w+b')
-        temp.write(data['file'].data)
-        temp.close()
-
-        # 7z format should be AES256 by default, with the -mem flag only needed for .zip,
-        # see https://sourceforge.net/p/sevenzip/discussion/45797/thread/bdc0378e/
-        # We could download this as a zip and use the -mem flag, but windows compressed file app does not know how to
-        # open it. Using 7z allows the file to be more easily associated with something that can actually read it (7zip)
-        suffix = '.{}'.format(data['format'])
-        archive_name = tempfile.mktemp(suffix=suffix, dir=temp_dir)
-        if data['format'] == '7z':
-            command = [binary, 'a', archive_name, temp.name, '-t7z', '-p{}'.format(data['password'])]
-        else:
-            command = [binary, 'a', archive_name, temp.name, '-p{}'.format(data['password']), '-mem=AES256']
-        subprocess.call(command, stdout=subprocess.PIPE)
-        with open(archive_name, 'rb') as archive:
-            encrypted = archive.read()
-            file_name = data.get('file_name')
-            if not file_name:
-                file_name, file_ext = os.path.splitext(content.file.filename)
-            file_name = u'{}.{}'.format(file_name, data['format'])
-            file_name = unicode(file_name.encode('ascii', 'ignore'))
-            content.file = NamedFile(encrypted, filename=file_name)
+        util = getUtility(IEncryptionUtility)
+        encrypted = util.encrypt(data['file'], data['format'], file_name, data['password'])
 
         content.password = None
         content.password_ctl = None
-
-        shutil.rmtree(temp_dir)
+        content.file = encrypted
         return content
 
 
@@ -128,6 +112,7 @@ class EncryptedFileAddView(add.DefaultAddView):
 
 
 class EncryptPlainFile(AutoExtensibleForm, form.Form):
+    label = u'Encrypt File'
     ignoreContext = True
     schema = IEncryptPlainFile
     redirect = False
@@ -143,27 +128,88 @@ class EncryptPlainFile(AutoExtensibleForm, form.Form):
             self.status = self.formErrorsMessage
             return
         validate_passwords(action, data)
-        encrypted_file = self.encrypt(data['format'], data['password'], data['delete_orig'])
-
-        api.portal.show_message(_(u'File successfully password-protected'), self.request, 'info')
-        return self.request.response.redirect(encrypted_file.absolute_url() + '/view')
-
-    def encrypt(self, format, password, delete=False):
         orig = IPrimaryFieldInfo(self.context).value
         container = aq_parent(aq_inner(self.context))
         add_view = EncryptedFileAddForm(container, self.request)
-        data = {
+        params = {
             'file': orig,
-            'format': format,
-            'password': password,
+            'format': data['format'],
+            'password': data['password'],
             'id': self.context.id,
             'title': self.context.title,
             'file_name': os.path.splitext(orig.filename)[0]
         }
-        encrypted_file = add_view.createAndAdd(data)  # does not have context
+        encrypted_file = add_view.createAndAdd(params)  # does not have context
         add_view._finishedAdd = True
 
-        if delete:
+        if data['delete_orig']:
             api.content.delete(obj=self.context)
 
-        return container[encrypted_file.getId()]
+        encrypted_file = container[encrypted_file.getId()]
+
+        api.portal.show_message(_(u'File successfully password-protected'), self.request, 'info')
+        return self.request.response.redirect(encrypted_file.absolute_url() + '/view')
+
+
+class DecryptFile(AutoExtensibleForm, form.Form):
+    label = u'Decrypt and Download'
+    schema = IDecryptFile
+    ignoreContext = True
+    output = None
+    file_name = ''
+
+    def render(self):
+        if not self.output:
+            return super(DecryptFile, self).render()
+        else:
+            mime = mimetypes.guess_type(self.file_name)[0] or ""
+            self.request.response.setHeader('Content-Type', mime + ' charset=utf-8')
+            self.request.response.setHeader('Content-disposition', 'attachment;filename={}'.format(self.file_name))
+            return self.output
+
+    @button.buttonAndHandler(_(u'Decrypt'), name='decrypt')
+    def handle_decrypt(self, action):
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+        util = getUtility(IEncryptionUtility)
+        try:
+            plain, file_name = util.decrypt(self.context.file, data['password'])
+            self.output = plain
+            self.file_name = file_name
+        except DecryptionError, e:
+            api.portal.show_message(_(e.message), self.request, 'error')
+
+
+class ZipEncryptDirectory(AutoExtensibleForm, form.Form):
+    label = u'Zip and Encrypt Directory'
+    ignoreContext = True
+    schema = IEncryptPlainFile
+    redirect = False
+
+    def render(self):
+        if not self.redirect:
+            return super(ZipEncryptDirectory, self).render()
+
+    @button.buttonAndHandler(u'Encrypt')
+    def handle_encrypt(self, action):
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+        validate_passwords(action, data)
+        utility = getUtility(IEncryptionUtility)
+        encrypted = utility.encrypt_directory(self.context, data['format'], data['password'])
+
+        if data['delete_orig']:
+            api.content.delete(objects=utility.get_encryptable(self.context))
+
+        archive_id = '{}.{}'.format(self.context.getId(), data['format'])
+        api.content.create(container=self.context, id=archive_id, title=archive_id, type='EncryptedFile')
+        obj = self.context.restrictedTraverse(archive_id)
+        obj.file = encrypted
+        notify(ObjectModifiedEvent(self.context))
+        self.redirect = True
+        api.portal.show_message(_(u'Successfully encrypted directory'), self.request, 'info')
+        self.request.response.redirect(obj.absolute_url()+'/view')

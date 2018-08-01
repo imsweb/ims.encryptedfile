@@ -36,6 +36,11 @@
             able to assist on this matter because this website does not store the associated password.
         </p>
 
+        <p>
+            You can also <a tal:attributes="href string:${context/absolute_url}/@@decrypt">enter a password to download
+            the decrypted version</a> of this file.
+        </p>
+
     </metal:block>
 </metal:content-core>
 

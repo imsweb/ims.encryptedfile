@@ -14,6 +14,14 @@ class IEncryptable(Interface):
     """ marker """
 
 
+class IEncryptionUtility(Interface):
+    def encrypt(self, file_data, format, file_name, password):
+        pass
+
+    def decrypt(self, obj, password):
+        pass
+
+
 class IEncryptedFile(model.Schema):
     title = TextLine(
         title=_(u"Title"),
@@ -97,4 +105,13 @@ class IEncryptPlainFile(model.Schema):
         title=_(u'Delete original'),
         description=_(u'Delete the original file, leaving only the encrypted version'),
         required=False,
+    )
+
+
+class IDecryptFile(model.Schema):
+    password = Password(
+        title=_(u"Password"),
+        description=_(u"Your password will not be stored on the system and cannot be recovered by it."),
+        required=True,
+        default=None,
     )

@@ -5,8 +5,18 @@
         <object name="encrypt_file" meta_type="CMF Action" i18n:domain="plone">
             <property name="title" i18n:translate="">Encrypt File</property>
             <property name="description" i18n:translate="">Password protect this file</property>
-            <property name="url_expr">string:@@encrypt_file</property>
-            <property name="available_expr">object/@@encrypt_utils/context_enabled</property>
+            <property name="url_expr">string:${plone_context_state/canonical_object_url}/@@encrypt_file</property>
+            <property name="available_expr">object/@@encrypt_utils/encrypt_file</property>
+            <property name="permissions">
+                <element value="Modify portal content"/>
+            </property>
+            <property name="visible">True</property>
+        </object>
+        <object name="encrypt_directory" meta_type="CMF Action" i18n:domain="plone">
+            <property name="title" i18n:translate="">Encrypt Directory</property>
+            <property name="description" i18n:translate="">Password protect all files in this directory</property>
+            <property name="url_expr">string:${plone_context_state/canonical_object_url}/@@encrypt_directory</property>
+            <property name="available_expr">object/@@encrypt_utils/encrypt_directory</property>
             <property name="permissions">
                 <element value="Modify portal content"/>
             </property>

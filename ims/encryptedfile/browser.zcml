@@ -25,6 +25,16 @@
             for="plone.app.contenttypes.interfaces.IImage"
             class=".browser.EncryptPlainFile"
             permission="zope2.View"/>
+    <browser:page
+            name="encrypt_directory"
+            for="plone.dexterity.interfaces.IDexterityContainer"
+            class=".browser.ZipEncryptDirectory"
+            permission="zope2.View"/>
+    <browser:page
+            name="decrypt"
+            for=".interfaces.IEncryptedFile"
+            class=".browser.DecryptFile"
+            permission="zope2.View"/>
 
     <adapter
             for="Products.CMFCore.interfaces.IFolderish

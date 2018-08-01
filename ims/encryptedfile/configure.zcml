@@ -1,7 +1,6 @@
 <configure
         xmlns="http://namespaces.zope.org/zope"
         xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
-        xmlns:zcml="http://namespaces.zope.org/zcml"
         i18n_domain="ims.encryptedfile">
 
     <genericsetup:registerProfile
@@ -20,5 +19,8 @@
     <class class="plone.app.contenttypes.content.Image">
         <implements interface=".interfaces.IEncryptable"/>
     </class>
+
+    <utility provides=".interfaces.IEncryptionUtility"
+             factory=".utility.EncryptionUtility"/>
 
 </configure>
