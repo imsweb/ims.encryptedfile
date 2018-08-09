@@ -13,4 +13,14 @@
         <value key="enabled">True</value>
         <value key="last_compilation">2018-07-25 16:01:00</value>
     </records>
+    <record name="ims.downloadable_types">
+        <field type="plone.registry.field.List">
+            <title>Downloadable Types</title>
+            <value_type type="plone.registry.field.TextLine"/>
+        </field>
+        <value purge="False">
+            <element>File</element>
+            <element>EncryptedFile</element>
+        </value>
+    </record>
 </registry>

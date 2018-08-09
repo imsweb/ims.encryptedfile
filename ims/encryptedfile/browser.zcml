@@ -26,9 +26,9 @@
             class=".browser.EncryptPlainFile"
             permission="zope2.View"/>
     <browser:page
-            name="encrypt_directory"
+            name="encrypt_folder"
             for="plone.dexterity.interfaces.IDexterityContainer"
-            class=".browser.ZipEncryptDirectory"
+            class=".browser.ZipEncryptFolder"
             permission="zope2.View"/>
     <browser:page
             name="decrypt"

@@ -8,4 +8,4 @@ from .interfaces import IEncryptedFile, IEncryptedFileEdit, IEncryptedFileAdd
 class EncryptedFile(File):
     """ password-protected """
     implements(IEncryptedFileEdit, IEncryptedFileAdd)
-
+    multiple = False

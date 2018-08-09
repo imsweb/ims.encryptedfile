@@ -12,11 +12,11 @@
             </property>
             <property name="visible">True</property>
         </object>
-        <object name="encrypt_directory" meta_type="CMF Action" i18n:domain="plone">
-            <property name="title" i18n:translate="">Encrypt Directory</property>
-            <property name="description" i18n:translate="">Password protect all files in this directory</property>
-            <property name="url_expr">string:${plone_context_state/canonical_object_url}/@@encrypt_directory</property>
-            <property name="available_expr">object/@@encrypt_utils/encrypt_directory</property>
+        <object name="encrypt_folder" meta_type="CMF Action" i18n:domain="plone">
+            <property name="title" i18n:translate="">Encrypt Folder</property>
+            <property name="description" i18n:translate="">Password protect all files in this folder</property>
+            <property name="url_expr">string:${plone_context_state/canonical_object_url}/@@encrypt_folder</property>
+            <property name="available_expr">object/@@encrypt_utils/encrypt_folder</property>
             <property name="permissions">
                 <element value="Modify portal content"/>
             </property>

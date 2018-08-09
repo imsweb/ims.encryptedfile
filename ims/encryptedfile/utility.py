@@ -2,8 +2,9 @@ import os
 import shutil
 import subprocess
 import tempfile
+import zipfile
 
-from plone import api
+import plone.api as api
 from plone.namedfile.file import NamedFile
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 from zope.interface.declarations import implementsOnly
@@ -93,8 +94,8 @@ class EncryptionUtility(object):
         shutil.rmtree(temp_dir)
         return file_data, contents[0]
 
-    def encrypt_directory(self, container, file_format, password):
-        """ Encrypt an entire directory into one archive
+    def encrypt_folder_multiple(self, container, file_format, password):
+        """ Encrypt an entire folder into one archive containing multiple files
 
         :param container: folderish content
         :param file_format: 7z, zip, etc
@@ -128,9 +129,51 @@ class EncryptionUtility(object):
         shutil.rmtree(temp_dir)
         return blob
 
+    def encrypt_folder_single(self, container, file_format, password):
+        """ Encrypt an entire folder into one archive containing a single zip
+
+        :param container: folderish content
+        :param file_format: 7z, zip, etc
+        :param password: password to encrypt with
+        :return: encrypted NamedFile
+        """
+
+        suffix = '.{}'.format(file_format)
+        temp_dir = tempfile.mkdtemp()
+        archive_name = tempfile.mktemp(suffix=suffix, dir=temp_dir)
+        zip_archive_name = os.path.join(temp_dir, container.getId() + '.zip')
+        zipper = zipfile.ZipFile(zip_archive_name, 'w', zipfile.ZIP_DEFLATED)
+        for obj in self.get_encryptable(container):
+            primary = IPrimaryFieldInfo(obj)
+            if primary:
+                plain = primary.value
+                # don't call tempfile.NamedTemporaryFile because we want to preserve filename
+                temp = open(os.path.join(temp_dir, plain.filename), mode='w+b')
+                temp.write(plain.data)
+                temp.close()
+                zipper.write(temp.name, os.path.split(temp.name)[-1])
+        zipper.close()
+
+        if file_format == '7z':
+            command = [self.binary(), 'a', archive_name, zip_archive_name, '-t7z', '-p{}'.format(password)]
+        else:
+            command = [self.binary(), 'a', archive_name, zip_archive_name, '-p{}'.format(password), '-mem=AES256']
+        subprocess.call(command, stdout=subprocess.PIPE)
+        with open(archive_name, 'rb') as archive:
+            encrypted = archive.read()
+            file_name = u'{}.{}'.format(container.getId(), file_format)
+            file_name = unicode(file_name.encode('ascii', 'ignore'))
+            blob = NamedFile(encrypted, filename=file_name)
+
+        shutil.rmtree(temp_dir)
+        return blob
+
+    encrypt_folder = encrypt_folder_single
+
     def get_encryptable(self, container, brains=False):
         catalog = api.portal.get_tool('portal_catalog')
         query = dict(
+            portal_type=[ptype for ptype in catalog.uniqueValuesFor('portal_type') if ptype != 'EncryptedFile'],
             object_provides=IEncryptable.__identifier__,
             path={'query': '/'.join(container.getPhysicalPath()), 'depth': 1}
         )

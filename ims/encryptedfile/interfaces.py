@@ -101,11 +101,6 @@ class IEncryptPlainFile(model.Schema):
         required=True,
         default=None,
     )
-    delete_orig = Bool(
-        title=_(u'Delete original'),
-        description=_(u'Delete the original file, leaving only the encrypted version'),
-        required=False,
-    )
 
 
 class IDecryptFile(model.Schema):

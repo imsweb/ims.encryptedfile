@@ -3,7 +3,7 @@ import os
 
 from Acquisition import aq_inner, aq_parent
 from Products.Five import BrowserView
-from plone import api
+import plone.api as api
 from plone.app.contenttypes.browser.file import FileView
 from plone.autoform.form import AutoExtensibleForm
 from plone.dexterity.browser import add, edit
@@ -51,7 +51,7 @@ class EncryptUtils(BrowserView):
             return False
         return True
 
-    def encrypt_directory(self):
+    def encrypt_folder(self):
         if IDexterityContainer.providedBy(self.context):
             util = getUtility(IEncryptionUtility)
             if util.get_encryptable(self.context, brains=True):
@@ -142,8 +142,7 @@ class EncryptPlainFile(AutoExtensibleForm, form.Form):
         encrypted_file = add_view.createAndAdd(params)  # does not have context
         add_view._finishedAdd = True
 
-        if data['delete_orig']:
-            api.content.delete(obj=self.context)
+        api.content.delete(obj=self.context)
 
         encrypted_file = container[encrypted_file.getId()]
 
@@ -182,15 +181,17 @@ class DecryptFile(AutoExtensibleForm, form.Form):
             api.portal.show_message(_(e.message), self.request, 'error')
 
 
-class ZipEncryptDirectory(AutoExtensibleForm, form.Form):
-    label = u'Zip and Encrypt Directory'
+class ZipEncryptFolder(AutoExtensibleForm, form.Form):
+    label = u'Zip and Encrypt Folder'
+    description = _(u'This will add all Files and Images in this folder into a single password protected zip file.'
+                    u' Already encrypted files will be ignored.')
     ignoreContext = True
     schema = IEncryptPlainFile
     redirect = False
 
     def render(self):
         if not self.redirect:
-            return super(ZipEncryptDirectory, self).render()
+            return super(ZipEncryptFolder, self).render()
 
     @button.buttonAndHandler(u'Encrypt')
     def handle_encrypt(self, action):
@@ -200,10 +201,9 @@ class ZipEncryptDirectory(AutoExtensibleForm, form.Form):
             return
         validate_passwords(action, data)
         utility = getUtility(IEncryptionUtility)
-        encrypted = utility.encrypt_directory(self.context, data['format'], data['password'])
+        encrypted = utility.encrypt_folder(self.context, data['format'], data['password'])
 
-        if data['delete_orig']:
-            api.content.delete(objects=utility.get_encryptable(self.context))
+        api.content.delete(objects=utility.get_encryptable(self.context))
 
         archive_id = '{}.{}'.format(self.context.getId(), data['format'])
         api.content.create(container=self.context, id=archive_id, title=archive_id, type='EncryptedFile')
@@ -211,5 +211,5 @@ class ZipEncryptDirectory(AutoExtensibleForm, form.Form):
         obj.file = encrypted
         notify(ObjectModifiedEvent(self.context))
         self.redirect = True
-        api.portal.show_message(_(u'Successfully encrypted directory'), self.request, 'info')
+        api.portal.show_message(_(u'Successfully encrypted folder.'), self.request, 'info')
         self.request.response.redirect(obj.absolute_url()+'/view')
