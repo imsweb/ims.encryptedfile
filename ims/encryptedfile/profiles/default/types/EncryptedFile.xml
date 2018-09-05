@@ -1,8 +1,11 @@
 <?xml version="1.0"?>
 <object name="EncryptedFile" meta_type="Dexterity FTI" i18n:domain="plone"
         xmlns:i18n="http://xml.zope.org/namespaces/i18n">
-    <property name="title" i18n:translate="">Encrypted File</property>
-    <property name="description" i18n:translate="">A password-protected file you can open with 7zip</property>
+    <property name="title" i18n:translate="">File with Encryption</property>
+    <property name="description" i18n:translate="">This content type is to password protect files - if your file is
+        already password protected it can be uploaded as a simple File. A file with encryption
+        can be opened with 7zip or other tools that can decrypt AES256 ciphers.
+    </property>
     <property name="icon_expr"></property>
     <property name="factory">EncryptedFile</property>
     <property name="add_view_expr">string:${folder_url}/++add++EncryptedFile</property>
