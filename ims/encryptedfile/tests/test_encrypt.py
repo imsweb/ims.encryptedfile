@@ -17,7 +17,6 @@ class TestEncrypt(base.IntegrationTestCase):
         file_data = NamedFile(f.read(), filename=file_name)
         file_format = u'txt'
         password = u'testpass'
-        #3gotta fix this
         blob = util.encrypt(file_data, file_format, file_name, password)
         self.assertIsInstance(NamedFile, blob)
 
