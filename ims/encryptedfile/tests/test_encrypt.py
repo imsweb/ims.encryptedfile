@@ -70,8 +70,6 @@ class TestEncrypt(base.IntegrationTestCase):
 
 
     def test_encrypt_folder_single(self):
-        import pdb
-        pdb.set_trace()
         util = getUtility(IEncryptionUtility)
         portal = api.portal.get()
         obj1 = api.content.create(
