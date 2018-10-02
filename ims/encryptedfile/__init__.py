@@ -1,2 +1,2 @@
 from zope.i18nmessageid import MessageFactory
-_ = MessageFactory('ims.contenttypes')
+_ = MessageFactory('ims.encryptedfile')
