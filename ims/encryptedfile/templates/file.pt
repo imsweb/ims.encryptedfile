@@ -26,14 +26,14 @@
         </p>
 
         <p>
-            This is a compressed, password-protected file. To extract the contents you will need to open
-            this file with a program that can decrypt AES256 such as <a href="https://www.7-zip.org/">7zip</a>. When
-            extracting the contents you will be prompted for the password.
+            This is a encrypted, password-protected file. To extract the contents you will need to download and open
+            this file with a program that can decrypt AES-256 encryption such as
+            <a href="https://www.7-zip.org/">7zip</a>.
         </p>
 
         <p>
-            Please contact the uploader for inquiries about accessing the contents. Site administrators will not be
-            able to assist on this matter because this website does not store the associated password.
+            Please contact the person who uploaded the file for the password. The password is not stored on the
+            site so a site administrator may not be able to assist with opening the file.
         </p>
 
         <p>

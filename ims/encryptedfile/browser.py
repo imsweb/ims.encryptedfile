@@ -29,6 +29,8 @@ class EncryptedFileView(FileView):
 
 class EncryptedFileEditForm(edit.DefaultEditForm):
     schema = IEncryptedFileEdit
+    description = _(u'You can only edit the title and description. If you need to replace the attached file, you '
+                    u'will need to delete the existing file and add a new file with encryption.')
 
 
 def validate_passwords(action, data):
@@ -152,10 +154,18 @@ class EncryptPlainFile(AutoExtensibleForm, form.Form):
 
 class DecryptFile(AutoExtensibleForm, form.Form):
     label = u'Decrypt and Download'
+    description = _(u'Use this form to decrypt the file when it is downloaded. Use caution when saving the file to '
+                    u'your computer or a shared directory. Once the file is decrypted, anyone with access can open '
+                    u'the file.')
     schema = IDecryptFile
     ignoreContext = True
     output = None
     file_name = ''
+
+    def updateActions(self):
+        super(DecryptFile, self).updateActions()
+        if 'decrypt' in self.actions:
+            self.actions["decrypt"].addClass("context")
 
     def render(self):
         if not self.output:
@@ -166,7 +176,7 @@ class DecryptFile(AutoExtensibleForm, form.Form):
             self.request.response.setHeader('Content-disposition', 'attachment;filename={}'.format(self.file_name))
             return self.output
 
-    @button.buttonAndHandler(_(u'Decrypt'), name='decrypt')
+    @button.buttonAndHandler(_(u'Decrypt File'), name='decrypt')
     def handle_decrypt(self, action):
         data, errors = self.extractData()
         if errors:
@@ -183,8 +193,8 @@ class DecryptFile(AutoExtensibleForm, form.Form):
 
 class ZipEncryptFolder(AutoExtensibleForm, form.Form):
     label = u'Zip and Encrypt Folder'
-    description = _(u'This will add all Files and Images in this folder into a single password protected zip file.'
-                    u' Already encrypted files will be ignored.')
+    description = _(u'This action will add all files and images in this folder into a single password-protected zip '
+                    u'file. Files that are already encrypted in this folder will be ignored.')
     ignoreContext = True
     schema = IEncryptPlainFile
     redirect = False

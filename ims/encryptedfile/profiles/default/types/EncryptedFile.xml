@@ -2,9 +2,9 @@
 <object name="EncryptedFile" meta_type="Dexterity FTI" i18n:domain="plone"
         xmlns:i18n="http://xml.zope.org/namespaces/i18n">
     <property name="title" i18n:translate="">File with Encryption</property>
-    <property name="description" i18n:translate="">This content type is to password protect files - if your file is
-        already password protected it can be uploaded as a simple File. A file with encryption
-        can be opened with 7zip or other tools that can decrypt AES256 ciphers.
+    <property name="description" i18n:translate="">Use this form to encrypt an unencrypted file while it is uploaded to
+        the site. Files that contain sensitive data should be encrypted and password-protected. If the file you want to
+        upload is already encrypted, do not use this form. Upload the file using the standard file type.
     </property>
     <property name="icon_expr"></property>
     <property name="factory">EncryptedFile</property>

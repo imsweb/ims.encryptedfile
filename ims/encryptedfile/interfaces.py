@@ -53,13 +53,15 @@ class IEncryptedFileAdd(model.Schema):
     )
     format = Choice(
         title=_(u'File format'),
-        description=_(u'All formats use AES256 encryption'),
+        description=_(u'All formats use the AES-256 encryption method. They can be read with any tool able to decrypt '
+                      u'AES encrypted data such as 7-zip or WinZip.'),
         vocabulary=encryption_formats,
         required=True
     )
     password = Password(
         title=_(u"Password"),
-        description=_(u"Your password will not be stored on the system and cannot be recovered by it."),
+        description=_(u"Be sure to store your password somewhere secure. Your password will not be stored on the site "
+                      u"and cannot be recovered."),
         required=True,
         default=None,
     )
@@ -85,13 +87,15 @@ class IEncryptedFileEdit(model.Schema):
 class IEncryptPlainFile(model.Schema):
     format = Choice(
         title=_(u'File format'),
-        description=_(u'All formats use AES256 encryption'),
+        description=_(u'All formats use the AES-256 encryption method. They can be read with any tool able to decrypt '
+                      u'AES encrypted data such as 7-zip or WinZip.'),
         vocabulary=encryption_formats,
         required=True
     )
     password = Password(
         title=_(u"Password"),
-        description=_(u"Your password will not be stored on the system and cannot be recovered by it."),
+        description=_(u"Be sure to store your password somewhere secure. Your password will not be stored on the site "
+                      u"and cannot be recovered."),
         required=True,
         default=None,
     )
@@ -106,7 +110,7 @@ class IEncryptPlainFile(model.Schema):
 class IDecryptFile(model.Schema):
     password = Password(
         title=_(u"Password"),
-        description=_(u"Your password will not be stored on the system and cannot be recovered by it."),
+        description=_(u"Enter the password provided by the file owner."),
         required=True,
         default=None,
     )
