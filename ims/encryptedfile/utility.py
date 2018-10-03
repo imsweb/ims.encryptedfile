@@ -16,6 +16,10 @@ class DecryptionError(Exception):
     """ Could not decrypt """
 
 
+class Windows7ZipError(Exception):
+    """ Exception running 7zip in Windows """
+
+
 class EncryptionUtility(object):
     implementsOnly(IEncryptionUtility)
 
@@ -53,7 +57,11 @@ class EncryptionUtility(object):
             command = [self.binary(), 'a', archive_name, temp.name, '-t7z', '-p{}'.format(password)]
         else:
             command = [self.binary(), 'a', archive_name, temp.name, '-p{}'.format(password), '-mem=AES256']
-        subprocess.call(command, stdout=subprocess.PIPE)
+        try:
+            subprocess.call(command, stdout=subprocess.PIPE)
+        except WindowsError:
+            raise Windows7ZipError(u'Unable to execute 7zip command. Make sure the location of this binary is in '
+                                   u'the PATH environment variable')
         with open(archive_name, 'rb') as archive:
             encrypted = archive.read()
             file_name = u'{}.{}'.format(file_name, file_format)
