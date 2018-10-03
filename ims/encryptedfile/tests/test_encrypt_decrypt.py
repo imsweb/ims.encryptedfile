@@ -2,10 +2,8 @@ import base
 import os
 from ..interfaces import IEncryptionUtility
 from zope.component import getUtility
-from plone.namedfile.file import NamedFile
 from plone import api
-from plone.namedfile import NamedFile, NamedImage
-from plone.dexterity.utils import addContentToContainer
+from plone.namedfile import NamedFile
 from ims.encryptedfile.utility import DecryptionError
 
 
@@ -20,11 +18,13 @@ class TestEncrypt(base.IntegrationTestCase):
         f = open(os.path.join(base_path, file_name))
         file_data = NamedFile(f.read(), filename=file_name)
         password = u'testpass'
+
         ##7z
         file_format = u'7z'
         blob = util.encrypt(file_data, file_format, file_name, password)
         #checking the type
         self.assertIsInstance(blob, NamedFile)
+
         ##zip
         file_format = u'zip'
         blob = util.encrypt(file_data, file_format, file_name, password)
@@ -37,6 +37,7 @@ class TestEncrypt(base.IntegrationTestCase):
         f = open(os.path.join(base_path, file_name))
         file_data = NamedFile(f.read(), filename=file_name)
         password = u'testpass'
+
         ##7z
         file_format = u'7z'
         blob = util.encrypt(file_data, file_format, file_name, password)
