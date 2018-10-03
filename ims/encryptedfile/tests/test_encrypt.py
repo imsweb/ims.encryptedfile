@@ -1,10 +1,10 @@
 import base
 import os
 from ..interfaces import IEncryptionUtility
-from ..utility import EncryptionUtility
 from zope.component import getUtility
 from plone.namedfile.file import NamedFile
 from plone import api
+
 
 
 base_path = os.path.dirname(os.path.realpath(__file__))
@@ -41,7 +41,7 @@ class TestEncrypt(base.IntegrationTestCase):
         file_name = u'file_to_encrypt.txt'
         f = open(os.path.join(base_path, file_name))
         file_data = NamedFile(f.read(), filename=file_name)
-        file_format = u'zip'
+        file_format = u'7z'
         password = u'testpass'
         blob = util.encrypt(file_data, file_format, file_name, password)
         #checking the type
@@ -63,7 +63,20 @@ class TestEncrypt(base.IntegrationTestCase):
     def test_encrypt_folder_multiple(self):
         util = getUtility(IEncryptionUtility)
         portal = api.portal.get()
-        file_format = u'zip'
+        obj1 = api.content.create(
+            type='File',
+            title='Test document 1',
+            container=portal)
+        obj2 = api.content.create(
+            type='Image',
+            title='Test document 2',
+            container=portal)
+        obj3 = api.content.create(
+            type='File',
+            title='Test document 3',
+            container=portal)
+
+        file_format = u'7z'
         password = u'testpass'
         blob = util.encrypt_folder_multiple(portal, file_format, password)
         self.assertIsInstance(blob, NamedFile)
@@ -73,16 +86,12 @@ class TestEncrypt(base.IntegrationTestCase):
         util = getUtility(IEncryptionUtility)
         portal = api.portal.get()
         obj1 = api.content.create(
-            type='Document',
+            type='File',
             title='Test document 1',
             container=portal)
         obj2 = api.content.create(
-            type='Document',
+            type='Image',
             title='Test document 2',
-            container=portal)
-        obj3 = api.content.create(
-            type='Document',
-            title='Test document 3',
             container=portal)
         file_format = u'zip'
         password = u'testpass'
