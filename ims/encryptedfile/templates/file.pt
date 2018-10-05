@@ -3,32 +3,33 @@
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
       lang="en"
-      metal:use-macro="context/main_template/macros/master"
-      i18n:domain="plone">
+         metal:use-macro="context/main_template/macros/master"
+         i18n:domain="plone">
 <body>
 
 <metal:content-core fill-slot="content-core">
     <metal:block define-macro="content-core"
-                 tal:define="content_type context/file/contentType|nothing;
-                download_url string:${context/absolute_url}/@@download/file/${context/file/filename}">
+             tal:define="content_type context/file/contentType|nothing;
+            download_url string:${context/absolute_url}/@@download/file/${context/file/filename}">
 
-        <p>
-            <a tal:attributes="href download_url">
-                <img tal:attributes="src view/get_mimetype_icon;
-                           alt content_type;" border="0"/>
-                <tal:name tal:content="context/file/filename">Filename</tal:name>
-            </a>
-            <span class="discreet"
-                  tal:define="size context/file/getSize;
-                    kb python:size/1024">
-      &mdash; <span tal:replace="kb"/> KB</span>
-
-        </p>
 
         <p>
             This is an encrypted, password-protected file. To extract the contents you will need to download and open
             this file with a program that can decrypt AES-256 encryption such as
             <a href="https://www.7-zip.org/">7zip</a>.
+        </p>
+
+        <p>
+            <a tal:attributes="href download_url">
+            <img tal:attributes="src view/get_mimetype_icon;
+                    alt content_type;" border="0"/>
+                    <tal:name tal:content="context/file/filename">Filename</tal:name>
+            </a>
+            <span class="discreet"
+                     tal:define="size context/file/getSize;
+                            kb python:size/1024">
+      &mdash; <span tal:replace="kb"/> KB</span>
+
         </p>
 
         <p>
