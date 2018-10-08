@@ -1,10 +1,12 @@
-import base
 import os
-from ..interfaces import IEncryptionUtility
-from zope.component import getUtility
+
+import base
 from plone import api
 from plone.namedfile import NamedFile
-from ims.encryptedfile.utility import DecryptionError
+from zope.component import getUtility
+
+from ..interfaces import IEncryptionUtility
+from ..utility import DecryptionError
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 
