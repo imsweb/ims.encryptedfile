@@ -12,6 +12,7 @@ base_path = os.path.dirname(os.path.realpath(__file__))
 class TestEncryptDecrypt(base.IntegrationTestCase):
 
     def test_encrypt(self):
+        """Test encrypt with file format 7z and zip"""
         util = getUtility(IEncryptionUtility)
         file_name = u'file_to_encrypt.txt'
         f = open(os.path.join(base_path, file_name))
@@ -31,6 +32,7 @@ class TestEncryptDecrypt(base.IntegrationTestCase):
         self.assertIsInstance(blob, NamedFile)
 
     def test_decrypt(self):
+        """Test decrypt with file format 7z and zip"""
         util = getUtility(IEncryptionUtility)
         file_name = u'file_to_encrypt.txt'
         f = open(os.path.join(base_path, file_name))
@@ -41,7 +43,7 @@ class TestEncryptDecrypt(base.IntegrationTestCase):
         file_format = u'7z'
         blob = util.encrypt(file_data, file_format, file_name, password)
         d_file_data, d_file_name = util.decrypt(blob, password)
-        # comparing the decrypted file data to what was actually written in the file
+        # Comparing the decrypted file data to what was actually written in the file
         self.assertEqual(d_file_data, "File to be encrypted.")
         self.assertEqual(d_file_name, file_name)
 
@@ -49,11 +51,15 @@ class TestEncryptDecrypt(base.IntegrationTestCase):
         file_format = u'zip'
         blob = util.encrypt(file_data, file_format, file_name, password)
         d_file_data, d_file_name = util.decrypt(blob, password)
-        # comparing the decrypted file data to what was actually written in the file
+        # Comparing the decrypted file data to what was actually written in the file
         self.assertEqual(d_file_data, "File to be encrypted.")
         self.assertEqual(d_file_name, file_name)
 
     def test_encrypt_folder_multiple(self):
+        """
+        Test encrypt_folder_multiple with file format 7z and zip.
+        Test that error is raised when a folder with multiple files is decrypted
+        """
         util = getUtility(IEncryptionUtility)
         portal = api.portal.get()
         obj1 = api.content.create(
@@ -92,7 +98,12 @@ class TestEncryptDecrypt(base.IntegrationTestCase):
         with self.assertRaises(DecryptionError):
             util.decrypt(blob, password)
 
-    def test_encrypt_folder_single_zip(self):
+    def test_encrypt_folder_single(self):
+        """
+        Test encrypt_folder_single with file format 7z and zip
+        and that a zip file is returned in both cases.
+        """
+
         util = getUtility(IEncryptionUtility)
         portal = api.portal.get()
         obj1 = api.content.create(
