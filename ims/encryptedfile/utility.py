@@ -5,6 +5,7 @@ import tempfile
 import zipfile
 
 import plone.api as api
+import six
 from plone.namedfile.file import NamedFile
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 from zope.interface.declarations import implementsOnly
@@ -65,7 +66,7 @@ class EncryptionUtility(object):
         with open(archive_name, 'rb') as archive:
             encrypted = archive.read()
             file_name = u'{}.{}'.format(file_name, file_format)
-            file_name = unicode(file_name.encode('ascii', 'ignore'))
+            file_name = six.text_type(file_name.encode('ascii', 'ignore'))
             blob = NamedFile(encrypted, filename=file_name)
 
         shutil.rmtree(temp_dir)
@@ -131,7 +132,7 @@ class EncryptionUtility(object):
         with open(archive_name, 'rb') as archive:
             encrypted = archive.read()
             file_name = u'{}.{}'.format(container.getId(), file_format)
-            file_name = unicode(file_name.encode('ascii', 'ignore'))
+            file_name = six.text_type(file_name.encode('ascii', 'ignore'))
             blob = NamedFile(encrypted, filename=file_name)
 
         shutil.rmtree(temp_dir)
@@ -170,7 +171,7 @@ class EncryptionUtility(object):
         with open(archive_name, 'rb') as archive:
             encrypted = archive.read()
             file_name = u'{}.{}'.format(container.getId(), file_format)
-            file_name = unicode(file_name.encode('ascii', 'ignore'))
+            file_name = six.text_type(file_name.encode('ascii', 'ignore'))
             blob = NamedFile(encrypted, filename=file_name)
 
         shutil.rmtree(temp_dir)

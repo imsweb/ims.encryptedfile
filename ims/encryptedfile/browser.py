@@ -1,19 +1,19 @@
 import mimetypes
 import os
-
 from Acquisition import aq_inner, aq_parent
-from Products.Five import BrowserView
+
 import plone.api as api
+from Products.Five import BrowserView
 from plone.app.contenttypes.browser.file import FileView
 from plone.autoform.form import AutoExtensibleForm
 from plone.dexterity.browser import add, edit
+from plone.dexterity.interfaces import IDexterityContainer
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 from z3c.form import button, form
 from z3c.form.action import ActionErrorOccurred
 from z3c.form.interfaces import WidgetActionExecutionError
 from zope.component import getUtility
 from zope.event import notify
-from plone.dexterity.interfaces import IDexterityContainer
 from zope.interface import Invalid
 from zope.lifecycleevent import ObjectModifiedEvent
 
@@ -187,7 +187,7 @@ class DecryptFile(AutoExtensibleForm, form.Form):
             plain, file_name = util.decrypt(self.context.file, data['password'])
             self.output = plain
             self.file_name = file_name
-        except DecryptionError, e:
+        except DecryptionError as e:
             api.portal.show_message(_(e.message), self.request, 'error')
 
 
