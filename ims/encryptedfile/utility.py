@@ -12,6 +12,11 @@ from zope.interface.declarations import implementsOnly
 
 from .interfaces import IEncryptionUtility, IEncryptable
 
+try:
+    WindowsError
+except NameError:
+    WindowsError = None
+
 
 class DecryptionError(Exception):
     """ Could not decrypt """
