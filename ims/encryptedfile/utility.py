@@ -8,7 +8,7 @@ import plone.api as api
 import six
 from plone.namedfile.file import NamedFile
 from plone.rfc822.interfaces import IPrimaryFieldInfo
-from zope.interface.declarations import implementsOnly
+from zope.interface.declarations import implementer_only
 
 from .interfaces import IEncryptionUtility, IEncryptable
 
@@ -26,8 +26,8 @@ class Windows7ZipError(Exception):
     """ Exception running 7zip in Windows """
 
 
+@implementer_only(IEncryptionUtility)
 class EncryptionUtility(object):
-    implementsOnly(IEncryptionUtility)
 
     @staticmethod
     def binary():
