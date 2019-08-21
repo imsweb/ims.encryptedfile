@@ -5,7 +5,6 @@ import tempfile
 import zipfile
 
 import plone.api as api
-import six
 from plone.namedfile.file import NamedFile
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 from zope.interface.declarations import implementer_only
@@ -66,12 +65,12 @@ class EncryptionUtility(object):
         try:
             subprocess.call(command, stdout=subprocess.PIPE)
         except WindowsError:
-            raise Windows7ZipError(u'Unable to execute 7zip command. Make sure the location of this binary is in '
-                                   u'the PATH environment variable')
+            raise Windows7ZipError('Unable to execute 7zip command. Make sure the location of this binary is in '
+                                   'the PATH environment variable')
         with open(archive_name, 'rb') as archive:
             encrypted = archive.read()
-            file_name = u'{}.{}'.format(file_name, file_format)
-            file_name = six.text_type(file_name.encode('ascii', 'ignore'))
+            file_name = '{}.{}'.format(file_name, file_format)
+            file_name = str(file_name.encode('ascii', 'ignore'))
             blob = NamedFile(encrypted, filename=file_name)
 
         shutil.rmtree(temp_dir)
@@ -93,8 +92,9 @@ class EncryptionUtility(object):
         p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         result = p.stdout.read()
         p.stdout.close()
+        p.terminate()
 
-        if 'Everything is Ok' not in result:
+        if b'Everything is Ok' not in result:
             raise DecryptionError('Failed to decrypt. Maybe wrong password')
 
         contents = [name for name in os.listdir(temp_dir) if name != os.path.split(temp.name)[-1]]
@@ -136,8 +136,8 @@ class EncryptionUtility(object):
                 subprocess.call(command, stdout=subprocess.PIPE)
         with open(archive_name, 'rb') as archive:
             encrypted = archive.read()
-            file_name = u'{}.{}'.format(container.getId(), file_format)
-            file_name = six.text_type(file_name.encode('ascii', 'ignore'))
+            file_name = '{}.{}'.format(container.getId(), file_format)
+            file_name = str(file_name.encode('ascii', 'ignore'))
             blob = NamedFile(encrypted, filename=file_name)
 
         shutil.rmtree(temp_dir)
@@ -175,8 +175,8 @@ class EncryptionUtility(object):
         subprocess.call(command, stdout=subprocess.PIPE)
         with open(archive_name, 'rb') as archive:
             encrypted = archive.read()
-            file_name = u'{}.{}'.format(container.getId(), file_format)
-            file_name = six.text_type(file_name.encode('ascii', 'ignore'))
+            file_name = '{}.{}'.format(container.getId(), file_format)
+            file_name = str(file_name.encode('ascii', 'ignore'))
             blob = NamedFile(encrypted, filename=file_name)
 
         shutil.rmtree(temp_dir)

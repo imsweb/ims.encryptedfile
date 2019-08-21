@@ -1,10 +1,10 @@
 import os
 
-import base
 from plone import api
 from plone.namedfile import NamedFile
 from zope.component import getUtility
 
+from . import base
 from ..interfaces import IEncryptionUtility
 from ..utility import DecryptionError
 
@@ -16,19 +16,19 @@ class TestEncryptDecrypt(base.IntegrationTestCase):
     def test_encrypt(self):
         """Test encrypt with file format 7z and zip"""
         util = getUtility(IEncryptionUtility)
-        file_name = u'file_to_encrypt.txt'
-        f = open(os.path.join(base_path, file_name))
-        file_data = NamedFile(f.read(), filename=file_name)
-        password = u'testpass'
+        file_name = 'file_to_encrypt.txt'
+        with open(os.path.join(base_path, file_name)) as f:
+            file_data = NamedFile(f.read(), filename=file_name)
+        password = 'testpass'
 
         # 7z
-        file_format = u'7z'
+        file_format = '7z'
         blob = util.encrypt(file_data, file_format, file_name, password)
         # checking the type
         self.assertIsInstance(blob, NamedFile)
 
         # zip
-        file_format = u'zip'
+        file_format = 'zip'
         blob = util.encrypt(file_data, file_format, file_name, password)
         # checking the type
         self.assertIsInstance(blob, NamedFile)
@@ -36,25 +36,25 @@ class TestEncryptDecrypt(base.IntegrationTestCase):
     def test_decrypt(self):
         """Test decrypt with file format 7z and zip"""
         util = getUtility(IEncryptionUtility)
-        file_name = u'file_to_encrypt.txt'
-        f = open(os.path.join(base_path, file_name))
-        file_data = NamedFile(f.read(), filename=file_name)
-        password = u'testpass'
+        file_name = 'file_to_encrypt.txt'
+        with open(os.path.join(base_path, file_name)) as f:
+            file_data = NamedFile(f.read(), filename=file_name)
+        password = 'testpass'
 
         # 7z
-        file_format = u'7z'
+        file_format = '7z'
         blob = util.encrypt(file_data, file_format, file_name, password)
         d_file_data, d_file_name = util.decrypt(blob, password)
         # Comparing the decrypted file data to what was actually written in the file
-        self.assertEqual(d_file_data, "File to be encrypted.")
+        self.assertEqual(d_file_data, b'File to be encrypted.')
         self.assertEqual(d_file_name, file_name)
 
         # zip
-        file_format = u'zip'
+        file_format = 'zip'
         blob = util.encrypt(file_data, file_format, file_name, password)
         d_file_data, d_file_name = util.decrypt(blob, password)
         # Comparing the decrypted file data to what was actually written in the file
-        self.assertEqual(d_file_data, "File to be encrypted.")
+        self.assertEqual(d_file_data, b'File to be encrypted.')
         self.assertEqual(d_file_name, file_name)
 
     def test_encrypt_folder_multiple(self):
@@ -68,24 +68,24 @@ class TestEncryptDecrypt(base.IntegrationTestCase):
             type='File',
             title='Test document 1',
             container=portal)
-        obj1.file = NamedFile("Text that need encryption", filename=u'testfile.txt')
+        obj1.file = NamedFile("Text that need encryption", filename='testfile.txt')
 
         obj2 = api.content.create(
             type='File',
             title='Test document 2',
             container=portal)
 
-        obj2.file = NamedFile("To the moon and back", filename=u'testfile2.txt')
+        obj2.file = NamedFile("To the moon and back", filename='testfile2.txt')
 
         obj3 = api.content.create(
             type='File',
             title='Test document 3',
             container=portal)
-        obj3.file = NamedFile("The mars rover.!2", filename=u'testfile3.txt')
-        password = u'testpass'
+        obj3.file = NamedFile("The mars rover.!2", filename='testfile3.txt')
+        password = 'testpass'
 
         # 7z
-        file_format = u'7z'
+        file_format = '7z'
         blob = util.encrypt_folder_multiple(portal, file_format, password)
         self.assertIsInstance(blob, NamedFile)
         # error testing
@@ -93,7 +93,7 @@ class TestEncryptDecrypt(base.IntegrationTestCase):
             util.decrypt(blob, password)
 
         # zip
-        file_format = u'zip'
+        file_format = 'zip'
         blob = util.encrypt_folder_multiple(portal, file_format, password)
         self.assertIsInstance(blob, NamedFile)
         # error testing
@@ -112,11 +112,11 @@ class TestEncryptDecrypt(base.IntegrationTestCase):
             type='File',
             title='Test document 1',
             container=portal)
-        obj1.file = NamedFile("Text that needs encryption", filename=u'testfile.txt')
-        password = u'testpass'
+        obj1.file = NamedFile("Text that needs encryption", filename='testfile.txt')
+        password = 'testpass'
 
         # 7z
-        file_format = u'7z'
+        file_format = '7z'
         blob = util.encrypt_folder_single(portal, file_format, password)
         self.assertIsInstance(blob, NamedFile)
         d_file_data, d_file_name = util.decrypt(blob, password)
@@ -126,7 +126,7 @@ class TestEncryptDecrypt(base.IntegrationTestCase):
         self.assertEqual(zip_file, '.zip')
 
         # zip
-        file_format = u'zip'
+        file_format = 'zip'
         blob = util.encrypt_folder_single(portal, file_format, password)
         self.assertIsInstance(blob, NamedFile)
         d_file_data, d_file_name = util.decrypt(blob, password)

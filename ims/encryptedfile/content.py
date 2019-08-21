@@ -1,11 +1,10 @@
 from plone.app.contenttypes.content import File
-from zope.interface import implementer, implements
+from zope.interface import implementer
 
 from .interfaces import IEncryptedFile, IEncryptedFileEdit, IEncryptedFileAdd
 
 
-@implementer(IEncryptedFile)
+@implementer(IEncryptedFile, IEncryptedFileEdit, IEncryptedFileAdd)
 class EncryptedFile(File):
     """ password-protected """
-    implements(IEncryptedFileEdit, IEncryptedFileAdd)
     multiple = False
