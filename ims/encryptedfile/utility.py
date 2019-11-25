@@ -70,7 +70,8 @@ class EncryptionUtility(object):
         with open(archive_name, 'rb') as archive:
             encrypted = archive.read()
             file_name = '{}.{}'.format(file_name, file_format)
-            file_name = str(file_name.encode('ascii', 'ignore'))
+            # what did we need this line for?
+            # file_name = str(file_name.encode('ascii', 'ignore'))
             blob = NamedFile(encrypted, filename=file_name)
 
         shutil.rmtree(temp_dir)

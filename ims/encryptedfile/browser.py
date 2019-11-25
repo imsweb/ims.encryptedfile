@@ -188,7 +188,7 @@ class DecryptFile(AutoExtensibleForm, form.Form):
             self.output = plain
             self.file_name = file_name
         except DecryptionError as e:
-            api.portal.show_message(_(e.message), self.request, 'error')
+            api.portal.show_message(_(e), self.request, 'error')
 
 
 class ZipEncryptFolder(AutoExtensibleForm, form.Form):
