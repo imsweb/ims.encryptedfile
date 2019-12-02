@@ -24,50 +24,50 @@ class IEncryptionUtility(Interface):
 
 class IEncryptedFile(model.Schema):
     title = TextLine(
-        title=_(u"Title"),
+        title=_("Title"),
         required=False
     )
     description = Text(
-        title=_(u"Description"),
+        title=_("Description"),
         required=False
     )
     directives.primary('file')
     file = NamedBlobFile(
-        title=_(u"File"),
+        title=_("File"),
         required=True,
     )
 
 
 class IEncryptedFileAdd(model.Schema):
     title = TextLine(
-        title=_(u"Title"),
+        title=_("Title"),
         required=False
     )
     description = Text(
-        title=_(u"Description"),
+        title=_("Description"),
         required=False
     )
     file = NamedBlobFile(
-        title=_(u"File"),
+        title=_("File"),
         required=True,
     )
     format = Choice(
-        title=_(u'File format'),
-        description=_(u'All formats use the AES-256 encryption method. They can be read with any tool able to decrypt '
-                      u'AES encrypted data such as 7-zip or WinZip.'),
+        title=_('File format'),
+        description=_('All formats use the AES-256 encryption method. They can be read with any tool able to decrypt '
+                      'AES encrypted data such as 7-zip or WinZip.'),
         vocabulary=encryption_formats,
         required=True
     )
     password = Password(
-        title=_(u"Password"),
-        description=_(u"Be sure to store your password somewhere secure. Your password will not be stored on the site "
-                      u"and cannot be recovered."),
+        title=_("Password"),
+        description=_("Be sure to store your password somewhere secure. Your password will not be stored on the site "
+                      "and cannot be recovered."),
         required=True,
         default=None,
     )
     password_ctl = Password(
-        title=_(u"Confirm Password"),
-        description=_(u"Re-enter the password"),
+        title=_("Confirm Password"),
+        description=_("Re-enter the password"),
         required=True,
         default=None,
     )
@@ -75,33 +75,33 @@ class IEncryptedFileAdd(model.Schema):
 
 class IEncryptedFileEdit(model.Schema):
     title = TextLine(
-        title=_(u"Title"),
+        title=_("Title"),
         required=False
     )
     description = Text(
-        title=_(u"Description"),
+        title=_("Description"),
         required=False
     )
 
 
 class IEncryptPlainFile(model.Schema):
     format = Choice(
-        title=_(u'File format'),
-        description=_(u'All formats use the AES-256 encryption method. They can be read with any tool able to decrypt '
-                      u'AES encrypted data such as 7-zip or WinZip.'),
+        title=_('File format'),
+        description=_('All formats use the AES-256 encryption method. They can be read with any tool able to decrypt '
+                      'AES encrypted data such as 7-zip or WinZip.'),
         vocabulary=encryption_formats,
         required=True
     )
     password = Password(
-        title=_(u"Password"),
-        description=_(u"Be sure to store your password somewhere secure. Your password will not be stored on the site "
-                      u"and cannot be recovered."),
+        title=_("Password"),
+        description=_("Be sure to store your password somewhere secure. Your password will not be stored on the site "
+                      "and cannot be recovered."),
         required=True,
         default=None,
     )
     password_ctl = Password(
-        title=_(u"Confirm Password"),
-        description=_(u"Re-enter the password"),
+        title=_("Confirm Password"),
+        description=_("Re-enter the password"),
         required=True,
         default=None,
     )
@@ -109,8 +109,8 @@ class IEncryptPlainFile(model.Schema):
 
 class IDecryptFile(model.Schema):
     password = Password(
-        title=_(u"Password"),
-        description=_(u"Enter the password provided by the file owner."),
+        title=_("Password"),
+        description=_("Enter the password provided by the file owner."),
         required=True,
         default=None,
     )

@@ -1,12 +1,9 @@
-import os
 import unittest
 
 import transaction
 from ims.encryptedfile import testing
 from plone.app.testing import setRoles, TEST_USER_ID, SITE_OWNER_NAME, SITE_OWNER_PASSWORD
 from plone.testing.z2 import Browser
-from zope.component import getUtility
-
 
 
 class UnitTestCase(unittest.TestCase):
@@ -22,8 +19,6 @@ class IntegrationTestCase(unittest.TestCase):
         self.portal = self.layer['portal']
         self.request = self.layer
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
-
-
 
 
 class FunctionalTestCase(IntegrationTestCase):

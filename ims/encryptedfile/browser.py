@@ -29,8 +29,8 @@ class EncryptedFileView(FileView):
 
 class EncryptedFileEditForm(edit.DefaultEditForm):
     schema = IEncryptedFileEdit
-    description = _(u'You can only edit the title and description. If you need to replace the attached file, you '
-                    u'will need to delete the existing file and add a new file with encryption.')
+    description = _('You can only edit the title and description. If you need to replace the attached file, you '
+                    'will need to delete the existing file and add a new file with encryption.')
 
 
 def validate_passwords(action, data):
@@ -40,7 +40,7 @@ def validate_passwords(action, data):
         password = data.get('password')
         password_ctl = data.get('password_ctl')
         if password != password_ctl:
-            err_str = _(u'Passwords do not match.')
+            err_str = _('Passwords do not match.')
             notify(ActionErrorOccurred(action, WidgetActionExecutionError('password', Invalid(err_str))))
             notify(ActionErrorOccurred(action, WidgetActionExecutionError('password_ctl', Invalid(err_str))))
 
@@ -114,7 +114,7 @@ class EncryptedFileAddView(add.DefaultAddView):
 
 
 class EncryptPlainFile(AutoExtensibleForm, form.Form):
-    label = u'Encrypt File'
+    label = 'Encrypt File'
     ignoreContext = True
     schema = IEncryptPlainFile
     redirect = False
@@ -123,7 +123,7 @@ class EncryptPlainFile(AutoExtensibleForm, form.Form):
         if not self.redirect:
             return super(EncryptPlainFile, self).render()
 
-    @button.buttonAndHandler(u'Encrypt')
+    @button.buttonAndHandler('Encrypt')
     def handle_encrypt(self, action):
         data, errors = self.extractData()
         if errors:
@@ -148,15 +148,15 @@ class EncryptPlainFile(AutoExtensibleForm, form.Form):
 
         encrypted_file = container[encrypted_file.getId()]
 
-        api.portal.show_message(_(u'File successfully password-protected'), self.request, 'info')
+        api.portal.show_message(_('File successfully password-protected'), self.request, 'info')
         return self.request.response.redirect(encrypted_file.absolute_url() + '/view')
 
 
 class DecryptFile(AutoExtensibleForm, form.Form):
-    label = u'Decrypt and Download'
-    description = _(u'Use this form to decrypt the file when it is downloaded. Use caution when saving the file to '
-                    u'your computer or a shared directory. Once the file is decrypted, anyone with access can open '
-                    u'the file.')
+    label = 'Decrypt and Download'
+    description = _('Use this form to decrypt the file when it is downloaded. Use caution when saving the file to '
+                    'your computer or a shared directory. Once the file is decrypted, anyone with access can open '
+                    'the file.')
     schema = IDecryptFile
     ignoreContext = True
     output = None
@@ -176,7 +176,7 @@ class DecryptFile(AutoExtensibleForm, form.Form):
             self.request.response.setHeader('Content-disposition', 'attachment;filename={}'.format(self.file_name))
             return self.output
 
-    @button.buttonAndHandler(_(u'Decrypt File'), name='decrypt')
+    @button.buttonAndHandler(_('Decrypt File'), name='decrypt')
     def handle_decrypt(self, action):
         data, errors = self.extractData()
         if errors:
@@ -188,13 +188,13 @@ class DecryptFile(AutoExtensibleForm, form.Form):
             self.output = plain
             self.file_name = file_name
         except DecryptionError as e:
-            api.portal.show_message(_(e.message), self.request, 'error')
+            api.portal.show_message(_(e), self.request, 'error')
 
 
 class ZipEncryptFolder(AutoExtensibleForm, form.Form):
-    label = u'Zip and Encrypt Folder'
-    description = _(u'This action will add all files and images in this folder into a single password-protected zip '
-                    u'file. Files that are already encrypted in this folder will be ignored.')
+    label = 'Zip and Encrypt Folder'
+    description = _('This action will add all files and images in this folder into a single password-protected zip '
+                    'file. Files that are already encrypted in this folder will be ignored.')
     ignoreContext = True
     schema = IEncryptPlainFile
     redirect = False
@@ -203,7 +203,7 @@ class ZipEncryptFolder(AutoExtensibleForm, form.Form):
         if not self.redirect:
             return super(ZipEncryptFolder, self).render()
 
-    @button.buttonAndHandler(u'Encrypt')
+    @button.buttonAndHandler('Encrypt')
     def handle_encrypt(self, action):
         data, errors = self.extractData()
         if errors:
@@ -221,5 +221,5 @@ class ZipEncryptFolder(AutoExtensibleForm, form.Form):
         obj.file = encrypted
         notify(ObjectModifiedEvent(self.context))
         self.redirect = True
-        api.portal.show_message(_(u'Successfully encrypted folder.'), self.request, 'info')
+        api.portal.show_message(_('Successfully encrypted folder.'), self.request, 'info')
         self.request.response.redirect(obj.absolute_url()+'/view')
