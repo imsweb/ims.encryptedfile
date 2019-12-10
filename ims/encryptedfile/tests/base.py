@@ -3,7 +3,7 @@ import unittest
 import transaction
 from ims.encryptedfile import testing
 from plone.app.testing import setRoles, TEST_USER_ID, SITE_OWNER_NAME, SITE_OWNER_PASSWORD
-from plone.testing.z2 import Browser
+from plone.testing.zope import Browser
 
 
 class UnitTestCase(unittest.TestCase):
