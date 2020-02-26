@@ -7,7 +7,13 @@
             name="default"
             title="ims.encryptedfile"
             directory="profiles/default"
-            description="Extension profile for ims.encryptedfile."
+            description="Installs a content type for encrypted files"
+            provides="Products.GenericSetup.interfaces.EXTENSION"/>
+
+    <genericsetup:registerProfile
+            name="uninstall"
+            title="ims.encryptedfile [uninstall]"
+            directory="profiles/uninstall"
             provides="Products.GenericSetup.interfaces.EXTENSION"/>
 
     <include file="browser.zcml"/>
