@@ -14,6 +14,7 @@ matrix:
   fast_finish: true
 before_install:
   - sudo apt-get install -y firefox-geckodriver
+  - sudo apt-get install p7zip-full
   - virtualenv -p `which python` .
   - bin/pip install -r requirements.txt -c constraints_plone$PLONE_VERSION.txt
   - cp test_plone$PLONE_VERSION.cfg buildout.cfg
