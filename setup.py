@@ -1,20 +1,19 @@
 from setuptools import setup, find_packages
 
-version = '2.0.1'
+version = '2.0.2'
 
 setup(name='ims.encryptedfile',
       version=version,
       description="",
       classifiers=[
-          "Framework :: Plone :: 5.0",
-          "Framework :: Plone :: 5.1",
+          "Framework :: Plone :: 5.2",
           "Programming Language :: Python",
       ],
       keywords='',
       author='Eric Wohnlich',
       author_email='wohnlice@imsweb.com',
-      url='https://git.imsweb.com/plone/ims.encryptedfile',
-      license='GPL',
+      url='https://github.com/imsweb/ims.encryptedfile',
+      license='MIT',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['ims'],
       include_package_data=True,
