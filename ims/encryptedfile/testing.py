@@ -2,7 +2,6 @@ import ims.encryptedfile
 from plone.app.testing import PloneSandboxLayer, IntegrationTesting, FunctionalTesting, applyProfile, PLONE_FIXTURE
 
 
-
 class EncryptedFileSiteLayer(PloneSandboxLayer):
     defaultBases = (PLONE_FIXTURE,)
 
@@ -12,10 +11,8 @@ class EncryptedFileSiteLayer(PloneSandboxLayer):
         # layer.
         self.loadZCML(package=ims.encryptedfile)
 
-
     def setUpPloneSite(self, portal):
         applyProfile(portal, 'ims.encryptedfile:default')
-
 
 
 ENCRYPTED_FILE_SITE_FIXTURE = EncryptedFileSiteLayer()

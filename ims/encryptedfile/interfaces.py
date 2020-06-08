@@ -2,7 +2,7 @@ from plone.namedfile.field import NamedBlobFile
 from plone.supermodel import directives
 from plone.supermodel import model
 from zope.interface import Interface
-from zope.schema import TextLine, Password, Text, Choice, Bool
+from zope.schema import TextLine, Password, Text, Choice
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 
 from . import _

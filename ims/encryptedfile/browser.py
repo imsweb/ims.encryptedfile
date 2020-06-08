@@ -222,4 +222,4 @@ class ZipEncryptFolder(AutoExtensibleForm, form.Form):
         notify(ObjectModifiedEvent(self.context))
         self.redirect = True
         api.portal.show_message(_('Successfully encrypted folder.'), self.request, 'info')
-        self.request.response.redirect(obj.absolute_url()+'/view')
+        self.request.response.redirect(obj.absolute_url() + '/view')
