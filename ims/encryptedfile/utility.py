@@ -25,7 +25,7 @@ class EncryptionUtility(object):
 
     @staticmethod
     def binary():
-        _binary = '7z'
+        _binary = '7za'
         if os.name == 'nt':
             _binary = '7z.exe'
         return _binary
