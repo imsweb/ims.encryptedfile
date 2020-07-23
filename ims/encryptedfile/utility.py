@@ -79,10 +79,14 @@ class EncryptionUtility(object):
         :param password: password
         :return: decrypted file data, decrypted file name
         """
+        if isinstance(nfile, NamedFile):
+            data = nfile.data
+        else:
+            data = nfile
 
         temp_dir = tempfile.mkdtemp()
         temp = tempfile.NamedTemporaryFile(mode='w+b', dir=temp_dir, delete=False)
-        temp.write(nfile.data)
+        temp.write(data)
         temp.close()
         command = [self.binary(), 'e', temp.name, '-o{}'.format(temp_dir), '*', '-p{}'.format(password), '-y']
         p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

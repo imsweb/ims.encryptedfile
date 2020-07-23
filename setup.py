@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '2.0.2'
+version = '2.0.3'
 
 setup(name='ims.encryptedfile',
       version=version,
@@ -27,7 +27,7 @@ setup(name='ims.encryptedfile',
       [z3c.autoinclude.plugin]
       target = plone
       """,
-      extras_require = {
+      extras_require={
           'test': ['plone.app.testing', 'plone.mocktestcase', 'formencode'],
       },
 
